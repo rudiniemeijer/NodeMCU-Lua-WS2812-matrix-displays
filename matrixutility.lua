@@ -1,11 +1,20 @@
 -- WS2812 matrix display utility program
 -- Copyright (c) 2017 Rudi Niemeijer
--- Works with square WS2812 matrix displays
--- Configurable number of boards, configurable matrix sizes
+--
+-- Works with square WS2812 matrix displays in the sizes 2x2, 4x4, 8x8 etc.
+-- Configurable number of cascaded boards
+-- 
+-- Connect NodeMCU/EPS-01 with D4/GPIO2 to DIN of first WS2812 board
+-- cascade other boards through DOUT/DIN
+--
+-- Six boards are connected as follows:
+--   D4/GPIO2 -> 1 -> 2 -> 3 ->
+--               4 -> 5 -> 6
+-- Coordinate system runs from (1,1) in upper-left corner
 
--------------------------
--- Hardware configuration
--------------------------
+----------------------------
+-- Hardware configuration --
+----------------------------
 boardsWide, boardsHigh = 2, 1 -- Matrix boards wide and high
 boardWidth, boardHeight = 8, 8 -- Size of matrix boards (all boards must be same size, i.e. 4x4 or 8x8)
 ledsPerBoard = boardWidth * boardHeight -- Number of leds per board, i.e. 16 or 64
@@ -17,9 +26,9 @@ colors = 3 -- RGB si three colors
 disp = ws2812.newBuffer(leds, colors) -- Display buffer
 brightness = 10 -- 1..255
 
-----------
--- TESTING
-----------
+-------------
+-- TESTING --
+-------------
 -- Center point and animation direction for circle
 cX, cY = math.floor(displayWidth / 2), math.floor(displayHeight / 2); dirX, dirY = 1, 1
 tmr.alarm(2, 500, tmr.ALARM_AUTO, testDisplay) -- 2 fps
@@ -73,10 +82,10 @@ function testDisplay() -- Contains all testing code
   plot(displayWidth, displayHeight, 0.5)
 end
 
----------------------------------------------------
--- High level pixel manipulation
--- For all functions goes: Origin (1,1) is top-left
----------------------------------------------------
+------------------------------------------------------
+-- High level pixel manipulation                    --
+-- For all functions goes: Origin (1,1) is top-left --
+------------------------------------------------------
 function clear() -- Clear the display buffer
   disp:fill(0, 0, 0) -- clear buffer
 end
@@ -139,9 +148,12 @@ function circle(x0, y0, radius, hue) -- Plot a circle at x0, y0 with radius and 
   end
 end
 
-----------------------------
--- Color conversion routines
-----------------------------
+function write(text, x, y, hue) -- Write a text at upperleft position x, y
+end
+
+-------------------------------
+-- Color conversion routines --
+-------------------------------
 function hueToRGB(h) -- Convert floating point hue to integer R, G, B
   local r, g, b = 0, 0, 0
 
@@ -173,9 +185,9 @@ function hueToRGB(h) -- Convert floating point hue to integer R, G, B
   return string.char(r, g, b)
 end
 
----------------------------------------------
--- Convert from and to orthogonal coordinates
----------------------------------------------
+------------------------------------------------
+-- Convert from and to orthogonal coordinates --
+------------------------------------------------
 function toLineair(x, y)
   boardNumber = math.floor((y - 1) / boardHeight) * boardsWide + math.floor((x - 1) / boardWidth)
   boardX = x - math.floor((x - 1) / boardWidth) * boardWidth
@@ -185,9 +197,9 @@ function toLineair(x, y)
   return linPos
 end
 
-----------------------------------------------
--- Low level display initialisation and update
-----------------------------------------------
+-------------------------------------------------
+-- Low level display initialisation and update --
+-------------------------------------------------
 function initDisplay()
   disp:fill(0, 0, 0) -- clear buffer
   ws2812.write(disp) -- write buffer to display
