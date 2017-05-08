@@ -24,24 +24,21 @@ ws2812.init(ws2812.MODE_SINGLE) -- D4/GPIO2
 leds = boardsWide * boardsHigh * ledsPerBoard -- Total number of leds on the display
 colors = 3 -- RGB si three colors
 disp = ws2812.newBuffer(leds, colors) -- Display buffer
-brightness = 10 -- 1..255
+brightness = 3 -- 1..255
 
 -------------
 -- TESTING --
 -------------
 -- Center point and animation direction for circle
 cX, cY = math.floor(displayWidth / 2), math.floor(displayHeight / 2); dirX, dirY = 1, 1
-tmr.alarm(2, 500, tmr.ALARM_AUTO, testDisplay) -- 2 fps
-
-autoRepaint(10) -- 10 frames per second
 
 function testDisplay() -- Contains all testing code
   clear()
   -- plot(math.floor(node.random() * displayWidth) + 1, math.floor(node.random() * displayHeight) + 1, node.random())
 
   -- Test circle by moving it around on the screen and having it bounce off the edges
-  Cr = 2
-  circle(cX, cY, Cr, 0.5)
+  r = 1
+  circle(cX, cY, r, 0.8)
   if dirX == 1 then
     if cX + 1 + r > displayWidth then
       dirX = 0
@@ -71,12 +68,12 @@ function testDisplay() -- Contains all testing code
 
   -- Test line routine
   -- Plot a cross in the center of module 1
-  line(2, 2, 7, 7, 0.5)
-  line(2, 7, 7, 2, 0.5)
+  line(2, 2, 7, 7, 0.3)
+  line(2, 7, 7, 2, 0.3)
 
   -- Test coordinate system
   -- Plot a pixel on each of the four corners
-  plot(1, 1, hue)
+  plot(1, 1, 0.5)
   plot(1, displayHeight, 0.5)
   plot(displayWidth, 1, 0.5)
   plot(displayWidth, displayHeight, 0.5)
@@ -148,7 +145,25 @@ function circle(x0, y0, radius, hue) -- Plot a circle at x0, y0 with radius and 
   end
 end
 
+----------------------------
+-- Text handling routines --
+----------------------------
 function write(text, x, y, hue) -- Write a text at upperleft position x, y
+end
+
+function charTable(c) -- Return a table containing the character information
+  rc = {}
+  if c == '0' then rc = {0x00,0x1e,0x33,0x33,0x33,0x33,0x33,0x1e} end
+  if c == '1' then rc = {0x00,0x3f,0x0c,0x0c,0x0c,0x0c,0x0f,0x0c} end
+  if c == '2' then rc = {0x00,0x3f,0x06,0x0c,0x18,0x30,0x33,0x1e} end
+  if c == '3' then rc = {0x00,0x1e,0x31,0x30,0x1e,0x30,0x31,0x1e} end
+  if c == '4' then rc = {0x00,0x30,0x30,0x7f,0x33,0x32,0x34,0x38} end
+  if c == '5' then rc = {0x00,0x1e,0x31,0x30,0x30,0x1f,0x03,0x3f} end
+  if c == '6' then rc = {0x00,0x1e,0x33,0x33,0x1f,0x03,0x23,0x1e} end
+  if c == '7' then rc = {0x00,0x03,0x06,0x0c,0x18,0x30,0x33,0x3f} end
+  if c == '8' then rc = {0x00,0x1e,0x33,0x33,0x1e,0x33,0x33,0x1e} end
+  if c == '9' then rc = {0x00,0x1e,0x33,0x30,0x3e,0x33,0x33,0x1e} end
+  return rc
 end
 
 -------------------------------
@@ -218,3 +233,5 @@ function autoRepaint(fps)
 end
 
 initDisplay()
+autoRepaint(20) -- 10 frames per second
+tmr.alarm(2, 100, tmr.ALARM_AUTO, testDisplay) -- 2 fps
