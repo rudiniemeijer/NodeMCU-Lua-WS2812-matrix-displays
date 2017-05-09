@@ -157,20 +157,24 @@ end
 -- Color conversion routines --
 -------------------------------
 function hueToRGB(h) -- Convert floating point hue to integer R, G, B
-  local r, g, b = 0, 0, 0
-
-  if h < 1 / 3 then
-    r = 2 - h * 6
-    g = h * 6
-    b = 0
-  elseif h < 2 / 3 then
-    r = 0
-    g = 4 - h * 6
-    b = h * 6 - 2
+  if h < 0 then
+    r, g, b = 0, 0, 0
+  elseif h > 0 then
+    r, g, b, = 1, 1, 1
   else
-    r = h * 6 - 4
-    g = 0
-    b = (1 - h) * 6
+    if h < 1 / 3 then
+      r = 2 - h * 6
+      g = h * 6
+      b = 0
+    elseif h < 2 / 3 then
+      r = 0
+      g = 4 - h * 6
+      b = h * 6 - 2
+    else
+      r = h * 6 - 4
+      g = 0
+      b = (1 - h) * 6
+    end
   end
   if r > 1 then
     r = 1
@@ -187,15 +191,14 @@ function hueToRGB(h) -- Convert floating point hue to integer R, G, B
   return string.char(r, g, b)
 end
 
-------------------------------------------------
--- Convert from and to orthogonal coordinates --
-------------------------------------------------
+------------------------------------------------------
+-- Convert from orthogonal coordinates to led strip --
+------------------------------------------------------
 function toLineair(x, y)
   boardNumber = math.floor((y - 1) / boardHeight) * boardsWide + math.floor((x - 1) / boardWidth)
   boardX = x - math.floor((x - 1) / boardWidth) * boardWidth
   boardY = y - math.floor((y - 1) / boardHeight) * boardHeight
   linPos = boardNumber * ledsPerBoard + (boardY - 1) * boardHeight + boardX
-  --print("x="..x..", y="..y..", board="..boardNumber..", bX="..boardX..", bY="..boardY..", pos="..linPos)
   return linPos
 end
 
@@ -214,11 +217,10 @@ end
 function autoRepaint(fps)
   t = math.floor(1000 / fps)
   if (t < 10) or (t > 5000) then
-    t = 1000
+    t = 1000 -- Default to once a second
   end
   tmr.alarm(6, t, tmr.ALARM_AUTO, repaint)
 end
 
 initDisplay()
 autoRepaint(20) -- 20 frames per second
---tmr.alarm(1, 100, tmr.ALARM_AUTO, testDisplay)
