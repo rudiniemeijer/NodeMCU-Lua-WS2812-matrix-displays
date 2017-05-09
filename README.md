@@ -7,6 +7,8 @@ A WS2812 is an RGB led with an embedded controller that interfaces with one wire
 
 ![WS2812 displays](https://github.com/rudiniemeijer/NodeMCU-Lua-WS2812-matrix-displays/blob/master/ws2812cascadeddisplays.jpg)
 
+The test 'TEST' on the boards shown above is written to the display with the following Lua instruction: `plotstring("TEST", 2, 2, 0.7)`
+
 ## matrixutility.lua
 A NodeMCU/Lua implementation that drives WS2812 matrix displays in the sizes 2x2, 4x4, 8x8 and up, solo or cascaded. Full color is supported and displays can be cascaded in any direction. Some basic pixel manipulation routines are implemented:  
 * clear()
