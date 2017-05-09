@@ -13,4 +13,4 @@ A NodeMCU/Lua implementation that drives WS2812 matrix displays in the sizes 2x2
 * autoRepaint(fps)
 * hueToRGB(hue)  
   
-It is advised to save this file to the NodeMCU first, compile it to matrixutility.lc and then remove the matrixutility.lua. Include the routines in any other lua program with _dofile("matrixutility.lua")_
+It is advised to save this file to the NodeMCU first, compile it to matrixutility.lc and then remove the matrixutility.lua. Include the routines in any other lua program with _dofile("matrixutility.lua")_.
