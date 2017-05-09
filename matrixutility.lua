@@ -15,73 +15,29 @@
 ----------------------------
 -- Hardware configuration --
 ----------------------------
-boardsWide, boardsHigh = 2, 1 -- Matrix boards wide and high
+boardsWide, boardsHigh = 4, 2 -- Matrix boards wide and high
 boardWidth, boardHeight = 8, 8 -- Size of matrix boards (all boards must be same size, i.e. 4x4 or 8x8)
 ledsPerBoard = boardWidth * boardHeight -- Number of leds per board, i.e. 16 or 64
 displayWidth = boardsWide * boardWidth -- Leds horizontal
 displayHeight = boardsHigh * boardHeight -- Leds vertical
 ws2812.init(ws2812.MODE_SINGLE) -- D4/GPIO2
 leds = boardsWide * boardsHigh * ledsPerBoard -- Total number of leds on the display
-colors = 3 -- RGB si three colors
-disp = ws2812.newBuffer(leds, colors) -- Display buffer
-brightness = 3 -- 1..255
+disp = ws2812.newBuffer(leds, 3) -- Display buffer with 3 colors fixed
 
--------------
--- TESTING --
--------------
--- Center point and animation direction for circle
-cX, cY = math.floor(displayWidth / 2), math.floor(displayHeight / 2); dirX, dirY = 1, 1
-
-function testDisplay() -- Contains all testing code
-  clear()
-  -- plot(math.floor(node.random() * displayWidth) + 1, math.floor(node.random() * displayHeight) + 1, node.random())
-
-  -- Test circle by moving it around on the screen and having it bounce off the edges
-  r = 1
-  circle(cX, cY, r, 0.8)
-  if dirX == 1 then
-    if cX + 1 + r > displayWidth then
-      dirX = 0
-    else
-      cX = cX + 1
-    end
-  else
-    if cX - 1 - r < 1 then
-      dirX = 1
-    else
-      cX = cX - 1
-    end
-  end
-  if dirY == 1 then
-    if cY + 1 + r > displayHeight then
-      dirY = 0
-    else
-      cY = cY + 1
-    end
-  else
-    if cY - 1 - r < 1 then
-      dirY = 1
-    else
-      cY = cY - 1
-    end
-  end
-
-  -- Test line routine
-  -- Plot a cross in the center of module 1
-  line(2, 2, 7, 7, 0.3)
-  line(2, 7, 7, 2, 0.3)
-
-  -- Test coordinate system
-  -- Plot a pixel on each of the four corners
-  plot(1, 1, 0.5)
-  plot(1, displayHeight, 0.5)
-  plot(displayWidth, 1, 0.5)
-  plot(displayWidth, displayHeight, 0.5)
-end
+-- Set brightness of all displays
+brightness = 1 -- 1..255, note that color depth decreases with brightness
 
 ------------------------------------------------------
 -- High level pixel manipulation                    --
 -- For all functions goes: Origin (1,1) is top-left --
+-- clear()                                          --
+-- plot(x, y, hue)                                  --
+-- unplot(x, y)                                     --
+-- isset(x, y)                                      --
+-- line(x0, y0, x1, y1, hue)                        --
+-- circle(x0, y0, radius, hue)                      --
+-- repaint()                                        --
+-- autoRepaint(fps)                                 --
 ------------------------------------------------------
 function clear() -- Clear the display buffer
   disp:fill(0, 0, 0) -- clear buffer
@@ -94,31 +50,83 @@ function plot(x, y, hue) -- Set a led at x, y with color hue
   end
 end
 
+function unplot(x, y) -- Un-set a led at x, y
+  disp:set(toLineair(x, y), {0,0,0})
+end
+
+function isset(x, y) -- Return true if pixel at x, y is set, otherwise false
+  if (x >= 1) and (x <= displayWidth) and (y >= 1) and (y <= displayHeight) then
+    a, b, c = disp:get(toLineair(x, y))
+  else
+    a, b, c = 0, 0, 0
+  end
+  if a + b + c > 0 then
+    return true
+  else
+    return false
+  end
+end
+
+-- Functions line and circle use Bresenham's integer alorithms
+-- See https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 function line(x0, y0, x1, y1, hue) -- Draw a line from x0, y0 to x1, y1 with color hue
   dx = x1 - x0
-  if dx < 0 then
-    dx = x0 - x1
-    x0 = x1
-    x1 = x0 + dx
-  end
   dy = y1 - y0
-  if dy < 0 then
-    dy = y0 - y1
-    y0 = y1
-    y1 = y0 
-    y1 = y0 + dy
-  end
-  D = 2 * dy - dx
-  plot(x0, y0, hue)
-  y = y0
-  for x = x0 + 1, x1 do
-    if D > 0 then
-      y = y + 1
-      plot(x, y, hue)
-      D = D + (2 * dy - 2 * dx)
+  dx1 = math.abs(dx)
+  dy1 = math.abs(dy)
+  px = 2 * dy1 - dx1
+  py = 2 * dx1 - dy1
+  if dy1 <= dx1 then
+    if dx >= 0 then
+      x = x0
+      y = y0
+      xe = x1
     else
+      x = x1
+      y = y1
+      xe = x0
+    end
+    plot(x, y, hue)
+
+    while x < xe do
+      x = x + 1
+      if px < 0 then
+        px = px + 2 * dy1
+      else
+        if (dx < 0 and dy < 0) or (dx > 0 and dy > 0) then
+          y = y + 1
+        else
+          y = y - 1
+        end
+        px = px + 2 * (dy1 - dx1)
+      end
       plot(x, y, hue)
-      D = D + (2 * dy)
+    end
+  else
+    if dy >= 0 then
+      x = x0
+      y = y0
+      ye = y1
+    else
+      x = x1
+      y = y1
+      ye = y0
+    end
+    plot(x, y, hue)
+
+    while y < ye do
+      y = y + 1
+      if py <= 0 then
+        py = py + 2 * dx1
+      else
+        if (dx < 0 and dy < 0) or (dx > 0 and dy > 0) then
+          x = x + 1
+        else
+          x = x - 1
+        end
+        py = py + 2 * (dx1 - dy1)
+      end
+      plot(x, y, hue)
     end
   end
 end
@@ -143,27 +151,6 @@ function circle(x0, y0, radius, hue) -- Plot a circle at x0, y0 with radius and 
       radiusError = radiusError + 2 * (y - x) + 1
     end
   end
-end
-
-----------------------------
--- Text handling routines --
-----------------------------
-function write(text, x, y, hue) -- Write a text at upperleft position x, y
-end
-
-function charTable(c) -- Return a table containing the character information
-  rc = {}
-  if c == '0' then rc = {0x00,0x1e,0x33,0x33,0x33,0x33,0x33,0x1e} end
-  if c == '1' then rc = {0x00,0x3f,0x0c,0x0c,0x0c,0x0c,0x0f,0x0c} end
-  if c == '2' then rc = {0x00,0x3f,0x06,0x0c,0x18,0x30,0x33,0x1e} end
-  if c == '3' then rc = {0x00,0x1e,0x31,0x30,0x1e,0x30,0x31,0x1e} end
-  if c == '4' then rc = {0x00,0x30,0x30,0x7f,0x33,0x32,0x34,0x38} end
-  if c == '5' then rc = {0x00,0x1e,0x31,0x30,0x30,0x1f,0x03,0x3f} end
-  if c == '6' then rc = {0x00,0x1e,0x33,0x33,0x1f,0x03,0x23,0x1e} end
-  if c == '7' then rc = {0x00,0x03,0x06,0x0c,0x18,0x30,0x33,0x3f} end
-  if c == '8' then rc = {0x00,0x1e,0x33,0x33,0x1e,0x33,0x33,0x1e} end
-  if c == '9' then rc = {0x00,0x1e,0x33,0x30,0x3e,0x33,0x33,0x1e} end
-  return rc
 end
 
 -------------------------------
@@ -233,5 +220,5 @@ function autoRepaint(fps)
 end
 
 initDisplay()
-autoRepaint(20) -- 10 frames per second
-tmr.alarm(2, 100, tmr.ALARM_AUTO, testDisplay) -- 2 fps
+autoRepaint(20) -- 20 frames per second
+--tmr.alarm(1, 100, tmr.ALARM_AUTO, testDisplay)
