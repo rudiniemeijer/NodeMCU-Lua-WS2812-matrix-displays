@@ -51,7 +51,7 @@ function plot(x, y, hue) -- Set a led at x, y with color hue
 end
 
 function unplot(x, y) -- Un-set a led at x, y
-  disp:set(toLineair(x, y), {0,0,0})
+  plot(x, y, -1)
 end
 
 function isset(x, y) -- Return true if pixel at x, y is set, otherwise false
@@ -159,8 +159,8 @@ end
 function hueToRGB(h) -- Convert floating point hue to integer R, G, B
   if h < 0 then
     r, g, b = 0, 0, 0
-  elseif h > 0 then
-    r, g, b, = 1, 1, 1
+  elseif h > 1 then
+    r, g, b = 1, 1, 1
   else
     if h < 1 / 3 then
       r = 2 - h * 6
