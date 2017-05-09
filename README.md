@@ -5,7 +5,7 @@ Lua program set for NodeMCU to drive cascaded 2x2, 4x4 or 8x8 WS2812 matrix disp
 ## WS2812 matrix displays
 A WS2812 is an RGB led with embedded controller that interfaces with one wire to a microprocessor. Furthermore, each WS2812 has te ability to daisychain to the next WS2812. Each WS2812 in such a daisychain is numbered from 1 to _number of WS2812 modules_. Strings of WS2812 are available, but also square and circle-shaped displays. These displays consist of a string of WS2812 modules. The leds on an 8x8 display for example are numbered from 1 to 64. The leds on two interconnected 8x8 displays are numbered 1 to 128, where number 65 is the first led on the second display. Adressing each pixel orthogonally on a set of WS2812 displays involves some calculations, which is exactly what the matrixutility.lua does.  
 
-[https://github.com/rudiniemeijer/NodeMCU-Lua-WS2812-matrix-displays/blob/master/Schermafdruk%202017-05-09%2019.36.12.png]
+https://github.com/rudiniemeijer/NodeMCU-Lua-WS2812-matrix-displays/blob/master/ws2812cascadeddisplays.jpg
 
 ## matrixutility.lua
 A NodeMCU/Lua implementation that drives WS2812 matrix displays in the sizes 2x2, 4x4, 8x8 and up, solo or cascaded. Full color is supported and displays can be cascaded in any direction. Some basic pixel manipulation routines are implemented:  
