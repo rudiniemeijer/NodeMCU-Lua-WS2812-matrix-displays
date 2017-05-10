@@ -215,11 +215,15 @@ function repaint()
 end
 
 function autoRepaint(fps)
-  t = math.floor(1000 / fps)
-  if (t < 10) or (t > 5000) then
-    t = 1000 -- Default to once a second
+  if fps > 0 then
+    t = math.floor(1000 / fps)
+    if (t < 10) or (t > 5000) then
+      t = 1000 -- Default to once a second
+    end
+    tmr.alarm(6, t, tmr.ALARM_AUTO, repaint)
+  else
+    tmr.stop(6)
   end
-  tmr.alarm(6, t, tmr.ALARM_AUTO, repaint)
 end
 
 initDisplay()
