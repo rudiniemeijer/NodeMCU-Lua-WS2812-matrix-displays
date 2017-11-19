@@ -24,7 +24,7 @@ function plotstring3x5(s, x, y, hue) -- Plot a string of characters at x, y in h
 end
 
 
-
+dofile("bigmatrixfont.lua")
 function plotchar8x8(c, x, y, hue) -- Plot character c 8x8 bits at x, y in hue
   for i = 1, 8 do
     for j = 1, 8 do
