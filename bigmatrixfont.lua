@@ -1,3 +1,12 @@
+-- Big Matrix font
+-- A fat matrix font like you would expect in an Apple II in a 8 by 8 matrix
+-- Copyright (c) 2017 Rudi Niemeijer
+-- MIT License
+
+-- Usage: link this file to your Lua program with 'dofile("bigmatrixfont.lua")'
+--        Then call getCharData8x8(c) with the character which needs converting
+--        A table type is returned, with in it 8 bytes that each contain 8 bits of character data
+
 function getCharData8x8(c) -- Return a table containing 8x8 bits
   local charSet8x8 = {
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, -- ' '   1
