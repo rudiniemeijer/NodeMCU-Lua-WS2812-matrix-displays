@@ -64,6 +64,8 @@ end
 
 -- Functions line and circle use Bresenham's integer alorithms
 -- See https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+
+--[[
 function line(x0, y0, x1, y1, hue) -- Draw a line from x0, y0 to x1, y1 with color hue
   dx = x1 - x0
   dy = y1 - y0
@@ -147,6 +149,7 @@ function circle(x0, y0, radius, hue) -- Plot a circle at x0, y0 with radius and 
     end
   end
 end
+]]--
 
 -------------------------------
 -- Color conversion routines --
@@ -219,4 +222,4 @@ function autoRepaint(fps)
 end
 
 initDisplay()
-autoRepaint(1) -- 20 frames per second
+autoRepaint(0) -- disable autoRepaint, use repaint()
